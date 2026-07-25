@@ -1,4 +1,5 @@
 from cancion.domain.intent import Intent
+from cancion.intent.builder import IntentBuilder
 from cancion.intent.parsed_intent import ParsedIntent
 from cancion.intent.protocol import IntentParser
 from cancion.intent.regex.action import extract_action
@@ -18,18 +19,4 @@ class RegexIntentParser(IntentParser):
         extract_frequency(message, parsed)
         extract_vendor(message, parsed)
 
-        if (
-            parsed.action is None
-            or parsed.amount is None
-            or parsed.frequency is None
-            or parsed.vendor is None
-        ):
-            raise ValueError("Parser produced an incomplete intent.")
-
-        return Intent(
-            vendor=parsed.vendor,
-            action=parsed.action.value,
-            max_amount=parsed.amount,
-            frequency=parsed.frequency,
-            approval_mode=parsed.approval_mode,
-        )
+        return IntentBuilder.build(parsed)
