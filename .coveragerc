@@ -1,0 +1,6 @@
+[run]
+source = src/cancion
+
+[report]
+show_missing = True
+skip_covered = False
