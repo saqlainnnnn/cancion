@@ -4,6 +4,7 @@ from cancion.intent.protocol import IntentParser
 from cancion.intent.regex.action import extract_action
 from cancion.intent.regex.amount import extract_amount
 from cancion.intent.regex.frequency import extract_frequency
+from cancion.intent.regex.vendor import extract_vendor
 
 
 class RegexIntentParser(IntentParser):
@@ -15,6 +16,7 @@ class RegexIntentParser(IntentParser):
         extract_action(message, parsed)
         extract_amount(message, parsed)
         extract_frequency(message, parsed)
+        extract_vendor(message, parsed)
 
         if (
             parsed.action is None
