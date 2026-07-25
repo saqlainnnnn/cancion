@@ -17,12 +17,12 @@ class ContractStatus(StrEnum):
 class Contract:
     """Represents an approved spending contract."""
 
-    agent_id: UUID
     vendor: str
     action: str
     max_amount: Money
     frequency: Frequency
 
+    agent_id: UUID | None = None
     approval_mode: ApprovalMode = ApprovalMode.AUTO
 
     status: ContractStatus = ContractStatus.ACTIVE
