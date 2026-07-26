@@ -4,7 +4,10 @@ from decimal import Decimal
 
 @dataclass(frozen=True, slots=True)
 class Money:
-    """Represents a monetary value."""
+    """Immutable monetary value."""
 
     amount: Decimal
     currency: str = "USD"
+
+    def __str__(self) -> str:
+        return f"{self.currency} {self.amount}"

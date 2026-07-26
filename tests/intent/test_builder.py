@@ -21,7 +21,7 @@ def test_build_success() -> None:
     intent = IntentBuilder.build(parsed)
 
     assert intent.vendor == "Netflix"
-    assert intent.action == "renew"
+    assert intent.action is Action.RENEW
     assert intent.max_amount == Money(Decimal("18"))
     assert intent.frequency == Frequency.MONTHLY
 

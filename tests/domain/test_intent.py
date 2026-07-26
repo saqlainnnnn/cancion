@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import pytest
 
+from cancion.common import Action
 from cancion.common.money import Money
 from cancion.domain.intent import ApprovalMode, Frequency, Intent
 
@@ -9,13 +10,13 @@ from cancion.domain.intent import ApprovalMode, Frequency, Intent
 def test_create_intent():
     intent = Intent(
         vendor="Netflix",
-        action="renew",
+        action=Action.RENEW,
         max_amount=Money(Decimal("18")),
         frequency=Frequency.MONTHLY,
     )
 
     assert intent.vendor == "Netflix"
-    assert intent.action == "renew"
+    assert intent.action is Action.RENEW
     assert intent.max_amount == Money(Decimal("18"))
     assert intent.frequency == Frequency.MONTHLY
     assert intent.approval_mode == ApprovalMode.AUTO

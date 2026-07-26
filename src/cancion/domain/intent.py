@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from cancion.common import ApprovalMode, Frequency
+from cancion.common import Action, ApprovalMode, Frequency
 from cancion.common.money import Money
 
 
@@ -9,7 +9,7 @@ class Intent:
     """Represents a validated spending intent."""
 
     vendor: str
-    action: str
+    action: Action
     max_amount: Money
     frequency: Frequency
 
