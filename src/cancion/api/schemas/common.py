@@ -1,0 +1,3 @@
+"""
+Shared API schema types.
+"""
