@@ -6,17 +6,17 @@ from cancion.domain.contract import Contract
 from cancion.domain.decision import DecisionOutcome
 from cancion.governance.context import EvaluationContext, SpendRequest
 from cancion.governance.engine import GovernanceEngine
-from cancion.governance.rules import Rule
+from cancion.governance.rules import Rule, RuleResult
 
 
 class PassRule(Rule):
     def evaluate(self, context: EvaluationContext) -> str | None:
-        return None
+        return RuleResult.passed()
 
 
 class FailRule(Rule):
     def evaluate(self, context: EvaluationContext) -> str | None:
-        return "failed"
+        return RuleResult.failed("failed")
 
 
 def make_context() -> EvaluationContext:

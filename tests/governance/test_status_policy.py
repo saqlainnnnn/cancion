@@ -5,6 +5,7 @@ from cancion.common.money import Money
 from cancion.domain.contract import Contract, ContractStatus
 from cancion.governance.context import EvaluationContext, SpendRequest
 from cancion.governance.policies.status import StatusRule
+from cancion.governance.rule_result import RuleOutcome
 
 
 def make_context(status: ContractStatus) -> EvaluationContext:
@@ -30,11 +31,15 @@ def make_context(status: ContractStatus) -> EvaluationContext:
 
 
 def test_active_contract() -> None:
-    assert StatusRule().evaluate(make_context(ContractStatus.ACTIVE)) is None
+    result = StatusRule().evaluate(make_context(ContractStatus.ACTIVE))
+
+    assert result.outcome is RuleOutcome.PASS
+    assert result.reason is None
 
 
 def test_revoked_contract() -> None:
     result = StatusRule().evaluate(make_context(ContractStatus.REVOKED))
 
-    assert result is not None
-    assert "revoked" in result.lower()
+    assert result.outcome is RuleOutcome.FAIL
+    assert result.reason is not None
+    assert "revoked" in result.reason.lower()

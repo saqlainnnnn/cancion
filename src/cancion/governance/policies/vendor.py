@@ -1,4 +1,5 @@
 from cancion.governance.context import EvaluationContext
+from cancion.governance.rule_result import RuleResult
 from cancion.governance.rules import Rule
 
 
@@ -7,10 +8,10 @@ class VendorRule(Rule):
 
     def evaluate(self, context: EvaluationContext) -> str | None:
         if context.contract.vendor.lower() != context.request.vendor.lower():
-            return (
+            return RuleResult.failed(
                 f"Vendor mismatch: expected "
                 f"{context.contract.vendor}, "
                 f"got {context.request.vendor}."
             )
 
-        return None
+        return RuleResult.passed()

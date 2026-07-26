@@ -5,6 +5,7 @@ from cancion.common.money import Money
 from cancion.domain.contract import Contract
 from cancion.governance.context import EvaluationContext, SpendRequest
 from cancion.governance.policies.vendor import VendorRule
+from cancion.governance.rule_result import RuleOutcome
 
 
 def make_context(vendor: str) -> EvaluationContext:
@@ -29,11 +30,15 @@ def make_context(vendor: str) -> EvaluationContext:
 
 
 def test_vendor_matches() -> None:
-    assert VendorRule().evaluate(make_context("Netflix")) is None
+    result = VendorRule().evaluate(make_context("Netflix"))
+
+    assert result.outcome is RuleOutcome.PASS
+    assert result.reason is None
 
 
 def test_vendor_mismatch() -> None:
     result = VendorRule().evaluate(make_context("Spotify"))
 
-    assert result is not None
-    assert "Vendor mismatch" in result
+    assert result.outcome is RuleOutcome.FAIL
+    assert result.reason is not None
+    assert "Vendor mismatch" in result.reason

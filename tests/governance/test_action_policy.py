@@ -5,6 +5,7 @@ from cancion.common.money import Money
 from cancion.domain.contract import Contract
 from cancion.governance.context import EvaluationContext, SpendRequest
 from cancion.governance.policies.action import ActionRule
+from cancion.governance.rule_result import RuleOutcome
 
 
 def make_context(action: Action) -> EvaluationContext:
@@ -29,11 +30,14 @@ def make_context(action: Action) -> EvaluationContext:
 
 
 def test_action_matches() -> None:
-    assert ActionRule().evaluate(make_context(Action.RENEW)) is None
+    result = ActionRule().evaluate(make_context(Action.RENEW))
+
+    assert result.outcome is RuleOutcome.PASS
+    assert result.reason is None
 
 
 def test_action_mismatch() -> None:
     result = ActionRule().evaluate(make_context(Action.CANCEL))
 
-    assert result is not None
-    assert "Action mismatch" in result
+    assert result.outcome is RuleOutcome.FAIL
+    assert result.reason == "Action mismatch: expected renew, got cancel."
