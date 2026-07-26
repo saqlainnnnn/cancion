@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from cancion.common import ApprovalMode, Frequency
+from cancion.common import Action, ApprovalMode, Frequency
 from cancion.common.money import Money
 
 
@@ -18,7 +18,7 @@ class Contract:
     """Represents an approved spending contract."""
 
     vendor: str
-    action: str
+    action: Action
     max_amount: Money
     frequency: Frequency
 

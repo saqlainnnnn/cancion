@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from cancion.common import Action
 from cancion.common.money import Money
 from cancion.domain.contract import Contract
 
@@ -9,7 +10,7 @@ class SpendRequest:
     """Represents an incoming spend request from an AI agent."""
 
     vendor: str
-    action: str
+    action: Action
     amount: Money
 
 
