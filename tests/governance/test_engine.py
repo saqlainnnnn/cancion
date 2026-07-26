@@ -19,6 +19,14 @@ class FailRule(Rule):
         return RuleResult.failed("failed")
 
 
+class EscalateRule(Rule):
+    def evaluate(
+        self,
+        context: EvaluationContext,
+    ) -> RuleResult:
+        return RuleResult.escalated("Manual approval required.")
+
+
 def make_context() -> EvaluationContext:
     contract = Contract(
         vendor="Netflix",
@@ -38,6 +46,21 @@ def make_context() -> EvaluationContext:
         contract=contract,
         request=request,
     )
+
+
+def test_escalation_returns_escalate() -> None:
+    engine = GovernanceEngine(
+        [
+            PassRule(),
+            EscalateRule(),
+            PassRule(),
+        ]
+    )
+
+    decision = engine.evaluate(make_context())
+
+    assert decision.outcome is DecisionOutcome.ESCALATE
+    assert decision.reasons == ["Manual approval required."]
 
 
 def test_all_rules_pass() -> None:
@@ -62,3 +85,17 @@ def test_any_rule_failure_denies() -> None:
 
     assert decision.outcome == DecisionOutcome.DENY
     assert decision.reasons == ["failed"]
+
+
+def test_failure_takes_precedence_over_escalation() -> None:
+    engine = GovernanceEngine(
+        [
+            PassRule(),
+            EscalateRule(),
+            FailRule(),
+        ]
+    )
+
+    decision = engine.evaluate(make_context())
+
+    assert decision.outcome is DecisionOutcome.DENY
