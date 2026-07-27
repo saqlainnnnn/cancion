@@ -1,4 +1,5 @@
 from decimal import Decimal
+from uuid import uuid4
 
 from fastapi.testclient import TestClient
 
@@ -77,3 +78,75 @@ def test_create_contract_returns_400_when_parse_fails():
     assert response.json() == {"detail": "Unable to parse request"}
 
     app.dependency_overrides.clear()
+
+
+def test_list_contracts():
+    contract = Contract(
+        vendor="Amazon",
+        action=Action.PAY,
+        max_amount=Money(Decimal("100.00")),
+        frequency=Frequency.MONTHLY,
+    )
+
+    class FakeService:
+        def list(self):
+            return [contract]
+
+    app.dependency_overrides[get_contract_service] = lambda: FakeService()
+
+    client = TestClient(app)
+
+    response = client.get("/contracts/")
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert len(body) == 1
+
+    assert body[0]["vendor"] == "Amazon"
+    assert body[0]["action"] == "pay"
+    assert body[0]["max_amount"]["amount"] == "100.00"
+
+
+def test_get_contract():
+    contract = Contract(
+        vendor="Amazon",
+        action=Action.PAY,
+        max_amount=Money(Decimal("100.00")),
+        frequency=Frequency.MONTHLY,
+    )
+
+    class FakeService:
+        def get(self, contract_id):
+            return contract
+
+    app.dependency_overrides[get_contract_service] = lambda: FakeService()
+
+    client = TestClient(app)
+
+    response = client.get(f"/contracts/{contract.id}")
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["id"] == str(contract.id)
+    assert body["vendor"] == "Amazon"
+
+
+def test_get_contract_returns_404():
+    class FakeService:
+        def get(self, contract_id):
+            return None
+
+    app.dependency_overrides[get_contract_service] = lambda: FakeService()
+
+    client = TestClient(app)
+
+    response = client.get(f"/contracts/{uuid4()}")
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Contract not found",
+    }

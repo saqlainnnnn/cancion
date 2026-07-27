@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from cancion.api.dependencies import (
@@ -16,14 +18,39 @@ from cancion.services.contract import ContractService
 router = APIRouter()
 
 
-@router.get("/")
-def list_contracts() -> list:
-    return []
+@router.get(
+    "/",
+    response_model=list[ContractResponse],
+)
+def list_contracts(
+    service: ContractService = Depends(get_contract_service),
+) -> list[ContractResponse]:
+    """List all contracts."""
+
+    contracts = service.list()
+
+    return [to_contract_response(contract) for contract in contracts]
 
 
-@router.get("/{contract_id}")
-def get_contract(contract_id: str) -> dict[str, str]:
-    return {"contract_id": contract_id}
+@router.get(
+    "/{contract_id}",
+    response_model=ContractResponse,
+)
+def get_contract(
+    contract_id: UUID,
+    service: ContractService = Depends(get_contract_service),
+) -> ContractResponse:
+    """Get a contract by its ID."""
+
+    contract = service.get(contract_id)
+
+    if contract is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Contract not found",
+        )
+
+    return to_contract_response(contract)
 
 
 @router.post(
