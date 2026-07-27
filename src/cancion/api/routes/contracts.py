@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from cancion.api.dependencies import (
     get_contract_service,
@@ -76,6 +76,22 @@ def create_contract(
     return to_contract_response(contract)
 
 
-@router.delete("/{contract_id}")
-def delete_contract(contract_id: str) -> dict[str, str]:
-    return {"deleted": contract_id}
+@router.delete(
+    "/{contract_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_contract(
+    contract_id: UUID,
+    service: ContractService = Depends(get_contract_service),
+) -> Response:
+    """Delete a contract."""
+
+    deleted = service.delete(contract_id)
+
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Contract not found",
+        )
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

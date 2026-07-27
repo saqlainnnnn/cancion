@@ -150,3 +150,35 @@ def test_get_contract_returns_404():
     assert response.json() == {
         "detail": "Contract not found",
     }
+
+
+def test_delete_contract():
+    class FakeService:
+        def delete(self, contract_id):
+            return True
+
+    app.dependency_overrides[get_contract_service] = lambda: FakeService()
+
+    client = TestClient(app)
+
+    response = client.delete(f"/contracts/{uuid4()}")
+
+    assert response.status_code == 204
+    assert response.content == b""
+
+
+def test_delete_contract_returns_404():
+    class FakeService:
+        def delete(self, contract_id):
+            return False
+
+    app.dependency_overrides[get_contract_service] = lambda: FakeService()
+
+    client = TestClient(app)
+
+    response = client.delete(f"/contracts/{uuid4()}")
+
+    assert response.status_code == 404
+    assert response.json() == {
+        "detail": "Contract not found",
+    }
