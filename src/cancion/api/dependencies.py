@@ -4,9 +4,17 @@ from sqlalchemy.orm import Session
 
 from cancion.db.session import SessionLocal
 from cancion.domain.factory import ContractFactory
+from cancion.intent.protocol import IntentParser
+from cancion.intent.regex.parser import RegexIntentParser
 from cancion.repositories.contract import ContractRepository
 from cancion.services.contract import ContractService
 from cancion.services.governance import GovernanceService
+
+
+def get_intent_parser() -> IntentParser:
+    """Create the application's intent parser."""
+
+    return RegexIntentParser()
 
 
 def get_db() -> Generator[Session]:
