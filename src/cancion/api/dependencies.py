@@ -16,6 +16,7 @@ from cancion.intent.regex.parser import RegexIntentParser
 from cancion.repositories.contract import ContractRepository
 from cancion.repositories.decision import DecisionRepository
 from cancion.services.contract import ContractService
+from cancion.services.decision import DecisionService
 from cancion.services.governance import GovernanceService
 
 
@@ -54,6 +55,15 @@ def get_contract_service(
     return ContractService(
         repository=repository,
         factory=ContractFactory(),
+    )
+
+
+def get_decision_service(
+    repository: DecisionRepository = Depends(get_decision_repository),
+) -> DecisionService:
+    """Create the decision application service."""
+    return DecisionService(
+        repository=repository,
     )
 
 
