@@ -1,30 +1,29 @@
+from __future__ import annotations
+
+from datetime import UTC, datetime
+from uuid import uuid4
+
 from cancion.domain.contract import Contract
 from cancion.domain.decision import Decision
+from cancion.domain.decision_record import DecisionRecord
 from cancion.governance.context import (
     EvaluationContext,
     SpendRequest,
 )
 from cancion.governance.engine import GovernanceEngine
-from cancion.governance.policies.action import ActionRule
-from cancion.governance.policies.amount import AmountRule
-from cancion.governance.policies.approval import ApprovalRule
-from cancion.governance.policies.status import StatusRule
-from cancion.governance.policies.vendor import VendorRule
+from cancion.repositories.decision import DecisionRepository
 
 
 class GovernanceService:
     """Evaluates spend requests against governance policies."""
 
-    def __init__(self) -> None:
-        self._engine = GovernanceEngine(
-            [
-                VendorRule(),
-                ActionRule(),
-                AmountRule(),
-                StatusRule(),
-                ApprovalRule(),
-            ]
-        )
+    def __init__(
+        self,
+        engine: GovernanceEngine,
+        repository: DecisionRepository,
+    ) -> None:
+        self._engine = engine
+        self._repository = repository
 
     def evaluate(
         self,
@@ -36,4 +35,18 @@ class GovernanceService:
             request=request,
         )
 
-        return self._engine.evaluate(context)
+        decision = self._engine.evaluate(context)
+
+        record = DecisionRecord(
+            id=uuid4(),
+            contract_id=contract.id,
+            vendor=request.vendor,
+            action=request.action,
+            amount=request.amount,
+            decision=decision,
+            created_at=datetime.now(UTC),
+        )
+
+        self._repository.save(record)
+
+        return decision

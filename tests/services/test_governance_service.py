@@ -1,11 +1,38 @@
 from decimal import Decimal
+from unittest.mock import Mock
 
 from cancion.common import Action, ApprovalMode, Frequency
 from cancion.common.money import Money
 from cancion.domain.contract import Contract
 from cancion.domain.decision import DecisionOutcome
 from cancion.governance.context import SpendRequest
+from cancion.governance.engine import GovernanceEngine
+from cancion.governance.policies.action import ActionRule
+from cancion.governance.policies.amount import AmountRule
+from cancion.governance.policies.approval import ApprovalRule
+from cancion.governance.policies.status import StatusRule
+from cancion.governance.policies.vendor import VendorRule
+from cancion.repositories.decision import DecisionRepository
 from cancion.services.governance import GovernanceService
+
+
+def make_service() -> GovernanceService:
+    engine = GovernanceEngine(
+        [
+            VendorRule(),
+            ActionRule(),
+            AmountRule(),
+            StatusRule(),
+            ApprovalRule(),
+        ]
+    )
+
+    repository = Mock(spec=DecisionRepository)
+
+    return GovernanceService(
+        engine=engine,
+        repository=repository,
+    )
 
 
 def make_contract(
@@ -35,7 +62,7 @@ def make_request(
 
 
 def test_service_approves_valid_request() -> None:
-    service = GovernanceService()
+    service = make_service()
 
     decision = service.evaluate(
         make_contract(),
@@ -47,7 +74,7 @@ def test_service_approves_valid_request() -> None:
 
 
 def test_service_denies_vendor_mismatch() -> None:
-    service = GovernanceService()
+    service = make_service()
 
     decision = service.evaluate(
         make_contract(),
@@ -59,7 +86,7 @@ def test_service_denies_vendor_mismatch() -> None:
 
 
 def test_service_denies_amount_exceeded() -> None:
-    service = GovernanceService()
+    service = make_service()
 
     decision = service.evaluate(
         make_contract(),
@@ -71,10 +98,12 @@ def test_service_denies_amount_exceeded() -> None:
 
 
 def test_service_escalates_manual_approval() -> None:
-    service = GovernanceService()
+    service = make_service()
 
     decision = service.evaluate(
-        make_contract(approval_mode=ApprovalMode.MANUAL),
+        make_contract(
+            approval_mode=ApprovalMode.MANUAL,
+        ),
         make_request(),
     )
 
