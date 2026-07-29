@@ -9,7 +9,7 @@ from cancion.db.base import Base
 
 
 @pytest.fixture(autouse=True)
-def clear_dependency_overrides():
+def clear_dependency_overrides() -> Generator[None]:
     app.dependency_overrides.clear()
     yield
     app.dependency_overrides.clear()
@@ -27,10 +27,10 @@ def session() -> Generator[Session]:
         autocommit=False,
     )
 
-    session = SessionLocal()
+    db = SessionLocal()
 
     try:
-        yield session
+        yield db
     finally:
-        session.close()
+        db.close()
         Base.metadata.drop_all(engine)
