@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from uuid import UUID
 
 from cancion.domain.decision_record import DecisionRecord
@@ -21,13 +22,13 @@ class DecisionService:
     ) -> DecisionRecord | None:
         return self._repository.get(decision_id)
 
-    def list(self) -> list[DecisionRecord]:
+    def list(self) -> Sequence[DecisionRecord]:
         return self._repository.list_all()
 
     def list_by_contract(
         self,
         contract_id: UUID,
-    ) -> list[DecisionRecord]:
+    ) -> Sequence[DecisionRecord]:
         return self._repository.list_by_contract(contract_id)
 
     def delete(

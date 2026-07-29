@@ -14,6 +14,7 @@ from cancion.governance.policies.status import StatusRule
 from cancion.governance.policies.vendor import VendorRule
 from cancion.repositories.decision import DecisionRepository
 from cancion.services.governance import GovernanceService
+from cancion.services.spend_ledger import SpendLedgerService
 
 
 def make_service() -> GovernanceService:
@@ -28,10 +29,12 @@ def make_service() -> GovernanceService:
     )
 
     repository = Mock(spec=DecisionRepository)
+    ledger_service = Mock(spec=SpendLedgerService)
 
     return GovernanceService(
         engine=engine,
         repository=repository,
+        ledger_service=ledger_service,
     )
 
 

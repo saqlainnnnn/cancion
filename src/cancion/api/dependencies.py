@@ -9,15 +9,18 @@ from cancion.governance.engine import GovernanceEngine
 from cancion.governance.policies.action import ActionRule
 from cancion.governance.policies.amount import AmountRule
 from cancion.governance.policies.approval import ApprovalRule
+from cancion.governance.policies.frequency import FrequencyRule
 from cancion.governance.policies.status import StatusRule
 from cancion.governance.policies.vendor import VendorRule
 from cancion.intent.protocol import IntentParser
 from cancion.intent.regex.parser import RegexIntentParser
 from cancion.repositories.contract import ContractRepository
 from cancion.repositories.decision import DecisionRepository
+from cancion.repositories.spend_ledger import SpendLedgerRepository
 from cancion.services.contract import ContractService
 from cancion.services.decision import DecisionService
 from cancion.services.governance import GovernanceService
+from cancion.services.spend_ledger import SpendLedgerService
 
 
 def get_intent_parser() -> IntentParser:
@@ -48,6 +51,13 @@ def get_decision_repository(
     return DecisionRepository(db)
 
 
+def get_spend_ledger_repository(
+    db: Session = Depends(get_db),
+) -> SpendLedgerRepository:
+    """Create a spend ledger repository."""
+    return SpendLedgerRepository(db)
+
+
 def get_contract_service(
     repository: ContractRepository = Depends(get_contract_repository),
 ) -> ContractService:
@@ -67,7 +77,22 @@ def get_decision_service(
     )
 
 
-def get_governance_engine() -> GovernanceEngine:
+def get_spend_ledger_service(
+    repository: SpendLedgerRepository = Depends(
+        get_spend_ledger_repository,
+    ),
+) -> SpendLedgerService:
+    """Create the spend ledger application service."""
+    return SpendLedgerService(
+        repository=repository,
+    )
+
+
+def get_governance_engine(
+    ledger_service: SpendLedgerService = Depends(
+        get_spend_ledger_service,
+    ),
+) -> GovernanceEngine:
     """Create the governance engine."""
     return GovernanceEngine(
         [
@@ -76,16 +101,25 @@ def get_governance_engine() -> GovernanceEngine:
             AmountRule(),
             StatusRule(),
             ApprovalRule(),
+            FrequencyRule(ledger_service),
         ]
     )
 
 
 def get_governance_service(
-    engine: GovernanceEngine = Depends(get_governance_engine),
-    repository: DecisionRepository = Depends(get_decision_repository),
+    engine: GovernanceEngine = Depends(
+        get_governance_engine,
+    ),
+    repository: DecisionRepository = Depends(
+        get_decision_repository,
+    ),
+    ledger_service: SpendLedgerService = Depends(
+        get_spend_ledger_service,
+    ),
 ) -> GovernanceService:
     """Create the governance application service."""
     return GovernanceService(
         engine=engine,
         repository=repository,
+        ledger_service=ledger_service,
     )

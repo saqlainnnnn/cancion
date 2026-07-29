@@ -39,3 +39,5 @@ class SpendLedger:
     def contains(self, instant: datetime) -> bool:
         """Return whether the given instant falls within this ledger period."""
         instant = instant.replace(tzinfo=UTC) if instant.tzinfo is None else instant.astimezone(UTC)
+
+        return self.period_start <= instant < self.period_end
