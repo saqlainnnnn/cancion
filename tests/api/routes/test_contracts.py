@@ -152,6 +152,68 @@ def test_get_contract_returns_404():
     }
 
 
+def test_update_contract():
+    contract = Contract(
+        vendor="Netflix",
+        action=Action.RENEW,
+        max_amount=Money(Decimal("20")),
+        frequency=Frequency.MONTHLY,
+    )
+
+    updated = contract.update(
+        vendor="Spotify",
+        max_amount=Money(Decimal("30")),
+    )
+
+    class FakeService:
+        def update(self, contract_id, update):
+            return updated
+
+    app.dependency_overrides[get_contract_service] = lambda: FakeService()
+
+    client = TestClient(app)
+
+    response = client.put(
+        f"/contracts/{contract.id}",
+        json={
+            "vendor": "Spotify",
+            "max_amount": "30",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["vendor"] == "Spotify"
+    assert body["version"] == 2
+
+    app.dependency_overrides.clear()
+
+
+def test_update_contract_returns_404():
+    class FakeService:
+        def update(self, contract_id, update):
+            return None
+
+    app.dependency_overrides[get_contract_service] = lambda: FakeService()
+
+    client = TestClient(app)
+
+    response = client.put(
+        f"/contracts/{uuid4()}",
+        json={},
+    )
+
+    assert response.status_code == 404
+
+    assert response.json() == {
+        "detail": "Contract not found",
+    }
+
+    app.dependency_overrides.clear()
+
+
 def test_delete_contract():
     class FakeService:
         def delete(self, contract_id):

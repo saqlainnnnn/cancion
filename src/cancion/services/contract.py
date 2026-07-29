@@ -3,6 +3,7 @@ from uuid import UUID
 from cancion.domain.contract import Contract
 from cancion.domain.factory import ContractFactory
 from cancion.domain.intent import Intent
+from cancion.domain.update_contract import UpdateContract
 from cancion.repositories.contract import ContractRepository
 
 
@@ -25,6 +26,28 @@ class ContractService:
 
     def list(self) -> list[Contract]:
         return self._repository.list()
+
+    def update(
+        self,
+        contract_id: UUID,
+        update: UpdateContract,
+    ) -> Contract | None:
+        contract = self._repository.get(contract_id)
+
+        if contract is None:
+            return None
+
+        updated = contract.update(
+            vendor=update.vendor,
+            action=update.action,
+            max_amount=update.max_amount,
+            frequency=update.frequency,
+            approval_mode=update.approval_mode,
+        )
+
+        self._repository.save(updated)
+
+        return updated
 
     def delete(self, contract_id: UUID) -> bool:
         return self._repository.delete(contract_id)

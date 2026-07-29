@@ -11,6 +11,9 @@ from cancion.api.schemas.contract import (
     ContractResponse,
     CreateContractRequest,
 )
+from cancion.api.schemas.update_contract import UpdateContractRequest
+from cancion.common.money import Money
+from cancion.domain.update_contract import UpdateContract
 from cancion.intent.exceptions import IntentParseError
 from cancion.intent.protocol import IntentParser
 from cancion.services.contract import ContractService
@@ -72,6 +75,39 @@ def create_contract(
         ) from exc
 
     contract = service.create(intent)
+
+    return to_contract_response(contract)
+
+
+@router.put(
+    "/{contract_id}",
+    response_model=ContractResponse,
+)
+def update_contract(
+    contract_id: UUID,
+    request: UpdateContractRequest,
+    service: ContractService = Depends(get_contract_service),
+) -> ContractResponse:
+    """Update a contract."""
+
+    update = UpdateContract(
+        vendor=request.vendor,
+        action=request.action,
+        max_amount=(Money(request.max_amount) if request.max_amount is not None else None),
+        frequency=request.frequency,
+        approval_mode=request.approval_mode,
+    )
+
+    contract = service.update(
+        contract_id,
+        update,
+    )
+
+    if contract is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Contract not found",
+        )
 
     return to_contract_response(contract)
 
