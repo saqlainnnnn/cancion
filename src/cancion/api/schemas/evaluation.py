@@ -4,14 +4,14 @@ from pydantic import BaseModel
 
 from cancion.common import Action
 
-from .common import MoneyResponse
+from .common import MoneyRequest
 
 
 class SpendRequestSchema(BaseModel):
     contract_id: UUID
     vendor: str
     action: Action
-    amount: MoneyResponse
+    amount: MoneyRequest
 
 
 class EvaluationResponse(BaseModel):

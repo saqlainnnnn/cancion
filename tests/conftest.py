@@ -10,6 +10,7 @@ from cancion.db.base import Base
 
 @pytest.fixture(autouse=True)
 def clear_dependency_overrides():
+    app.dependency_overrides.clear()
     yield
     app.dependency_overrides.clear()
 
