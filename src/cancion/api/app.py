@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from cancion.api.routes import agents
 from cancion.api.routes.contracts import router as contracts_router
 from cancion.api.routes.decisions import router as decisions_router
 from cancion.api.routes.governance import router as governance_router
@@ -33,6 +34,12 @@ app.include_router(
     organization_router,
     prefix="/organizations",
     tags=["Organizations"],
+)
+
+app.include_router(
+    agents.router,
+    prefix="/agents",
+    tags=["Agents"],
 )
 
 

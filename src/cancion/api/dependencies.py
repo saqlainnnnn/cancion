@@ -14,10 +14,12 @@ from cancion.governance.policies.status import StatusRule
 from cancion.governance.policies.vendor import VendorRule
 from cancion.intent.protocol import IntentParser
 from cancion.intent.regex.parser import RegexIntentParser
+from cancion.repositories.agent import AgentRepository
 from cancion.repositories.contract import ContractRepository
 from cancion.repositories.decision import DecisionRepository
 from cancion.repositories.organization import OrganizationRepository
 from cancion.repositories.spend_ledger import SpendLedgerRepository
+from cancion.services.agent import AgentService
 from cancion.services.contract import ContractService
 from cancion.services.decision import DecisionService
 from cancion.services.governance import GovernanceService
@@ -139,3 +141,17 @@ def get_organization_service(
     ),
 ) -> OrganizationService:
     return OrganizationService(repository)
+
+
+def get_agent_repository(
+    db: Session = Depends(get_db),
+) -> AgentRepository:
+    return AgentRepository(db)
+
+
+def get_agent_service(
+    repository: AgentRepository = Depends(
+        get_agent_repository,
+    ),
+) -> AgentService:
+    return AgentService(repository)

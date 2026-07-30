@@ -43,6 +43,7 @@ def session() -> Generator[Session]:
     finally:
         db.close()
         Base.metadata.drop_all(engine)
+        engine.dispose()
 
 
 @pytest.fixture
