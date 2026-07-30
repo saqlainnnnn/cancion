@@ -104,6 +104,25 @@ npm install
 npm run dev
 ```
 
+The frontend will run on `http://localhost:5174` (or the first available host), and the backend should be running on `http://localhost:8015`.
+
+## Feature flow documentation
+
+See [docs/feature-flows.md](docs/feature-flows.md) for user flows and internal implementation maps for:
+
+- Contract creation
+- Active contract listing
+- Contract deactivation / soft delete
+- Inactive contract history
+- Spend evaluation
+- Governance policy evaluation pipeline
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
 Then open `http://localhost:5173`.
 The API will be available at `http://localhost:8015`.
 ### Running tests

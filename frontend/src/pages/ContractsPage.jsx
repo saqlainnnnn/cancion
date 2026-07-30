@@ -82,13 +82,17 @@ function ContractsPage() {
           <p className="empty-state">No contracts yet. Create one above.</p>
         ) : (
           <ul className="contract-list">
-            {contracts.map((contract) => (
+            {contracts.map((contract, index) => (
               <li key={contract.id} className="contract-card">
                 <div className="contract-info">
                   <h3>{contract.vendor}</h3>
                   <p className="contract-meta">
                     <span className="action">{contract.action}</span>
                     <span className="status-badge">{contract.status}</span>
+                  </p>
+                  <p className="contract-meta contract-id-meta">
+                    <span className="proxy-id">ID</span>
+                    <span className="uuid-id" title={contract.id}>{contract.id}</span>
                   </p>
                   <p className="contract-amount">
                     Limit: <strong>${contract.max_amount.amount}</strong> {contract.max_amount.currency}/mo

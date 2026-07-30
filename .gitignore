@@ -57,3 +57,7 @@ uv.lock
 # Misc
 *.swp
 *.swo
+
+# Vite build artifacts
+frontend/.vite/
+frontend/node_modules/
