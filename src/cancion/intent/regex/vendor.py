@@ -6,11 +6,24 @@ from cancion.intent.regex.vendors import KNOWN_VENDORS
 def extract_vendor(message: str, parsed: ParsedIntent) -> None:
     """Populate the vendor field."""
 
-    words = {word.strip(".,!?()[]{}\"'") for word in message.lower().split()}
+    words = [
+        word.strip(".,!?()[]{}\"'")
+        for word in message.lower().split()
+        if word.strip(".,!?()[]{}\"'")
+    ]
 
-    matches = KNOWN_VENDORS & words
-
-    if not matches:
+    if not words:
         raise IntentParseError("Unable to determine vendor.")
 
-    parsed.vendor = sorted(matches)[0].title()
+    known_matches = sorted(KNOWN_VENDORS & set(words))
+    if known_matches:
+        parsed.vendor = known_matches[0].title()
+        return
+
+    ignored = {"renew", "cancel", "buy", "pay", "subscribe", "for", "the", "a", "an"}
+    candidate = next((word for word in words[1:] if word not in ignored), None)
+
+    if candidate is None:
+        candidate = words[0]
+
+    parsed.vendor = candidate.title()

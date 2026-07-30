@@ -89,11 +89,23 @@ cp .env.example .env
 uv run alembic upgrade head
 
 # Start the API
-uv run uvicorn cancion.api.app:app --reload
+uv run uvicorn cancion.api.app:app --reload --port 8015
 ```
 
-The API will be available at `http://localhost:8000`, with interactive docs at `http://localhost:8000/docs`.
+The API will be available at `http://localhost:8015`, with interactive docs at `http://localhost:8015/docs`.
 
+### Frontend UI
+
+A lightweight React frontend was added under `frontend/` for local development:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Then open `http://localhost:5173`.
+The API will be available at `http://localhost:8015`.
 ### Running tests
 
 ```bash

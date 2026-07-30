@@ -27,3 +27,11 @@ def test_unknown_vendor() -> None:
 
     with pytest.raises(IntentParseError):
         extract_vendor("Renew unknown service", parsed)
+
+
+def test_extract_vendor_prefers_real_vendor_name() -> None:
+    parsed = ParsedIntent()
+
+    extract_vendor("Renew Disney for $15 monthly", parsed)
+
+    assert parsed.vendor == "Disney"
