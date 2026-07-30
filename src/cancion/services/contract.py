@@ -27,6 +27,9 @@ class ContractService:
     def list(self) -> list[Contract]:
         return self._repository.list()
 
+    def list_inactive(self) -> list[Contract]:
+        return self._repository.list_inactive()
+
     def update(
         self,
         contract_id: UUID,

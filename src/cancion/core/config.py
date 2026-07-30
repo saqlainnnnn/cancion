@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
 
     DATABASE_URL: str = Field(
-        default="postgresql+psycopg://postgres:postgres@localhost:5432/cancion"
+        default="sqlite:///./cancion.db"
     )
 
     # ------------------------------------------------------------------

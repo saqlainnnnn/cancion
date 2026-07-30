@@ -28,9 +28,23 @@ router = APIRouter()
 def list_contracts(
     service: ContractService = Depends(get_contract_service),
 ) -> list[ContractResponse]:
-    """List all contracts."""
+    """List all active contracts."""
 
     contracts = service.list()
+
+    return [to_contract_response(contract) for contract in contracts]
+
+
+@router.get(
+    "/history/inactive",
+    response_model=list[ContractResponse],
+)
+def list_inactive_contracts(
+    service: ContractService = Depends(get_contract_service),
+) -> list[ContractResponse]:
+    """List all inactive contracts."""
+
+    contracts = service.list_inactive()
 
     return [to_contract_response(contract) for contract in contracts]
 

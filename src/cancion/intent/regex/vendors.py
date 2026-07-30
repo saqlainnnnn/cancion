@@ -10,6 +10,8 @@ KNOWN_VENDORS: frozenset[str] = frozenset(
         "github",
         "openai",
         "chatgpt",
+        "claude",
+        "anthropic",
         "apple",
         "google",
         "microsoft",

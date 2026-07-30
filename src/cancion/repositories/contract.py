@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from cancion.db.mappers.contract import to_domain, to_model
 from cancion.db.models.contract import ContractModel
-from cancion.domain.contract import Contract
+from cancion.domain.contract import Contract, ContractStatus
 
 
 class ContractRepository:
@@ -34,7 +34,18 @@ class ContractRepository:
         return to_domain(model)
 
     def list(self) -> list[Contract]:
-        models = self._session.scalars(select(ContractModel)).all()
+        """List only active contracts."""
+        models = self._session.scalars(
+            select(ContractModel).where(ContractModel.status == ContractStatus.ACTIVE)
+        ).all()
+
+        return [to_domain(model) for model in models]
+
+    def list_inactive(self) -> list[Contract]:
+        """List only inactive contracts."""
+        models = self._session.scalars(
+            select(ContractModel).where(ContractModel.status == ContractStatus.INACTIVE)
+        ).all()
 
         return [to_domain(model) for model in models]
 
@@ -42,6 +53,7 @@ class ContractRepository:
         self,
         contract_id: UUID,
     ) -> bool:
+        """Soft delete a contract by marking it as inactive."""
         model = self._session.get(
             ContractModel,
             contract_id,
@@ -50,7 +62,7 @@ class ContractRepository:
         if model is None:
             return False
 
-        self._session.delete(model)
+        model.status = ContractStatus.INACTIVE
         self._session.commit()
 
         return True
