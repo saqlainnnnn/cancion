@@ -16,10 +16,12 @@ from cancion.intent.protocol import IntentParser
 from cancion.intent.regex.parser import RegexIntentParser
 from cancion.repositories.contract import ContractRepository
 from cancion.repositories.decision import DecisionRepository
+from cancion.repositories.organization import OrganizationRepository
 from cancion.repositories.spend_ledger import SpendLedgerRepository
 from cancion.services.contract import ContractService
 from cancion.services.decision import DecisionService
 from cancion.services.governance import GovernanceService
+from cancion.services.organization import OrganizationService
 from cancion.services.spend_ledger import SpendLedgerService
 
 
@@ -123,3 +125,17 @@ def get_governance_service(
         repository=repository,
         ledger_service=ledger_service,
     )
+
+
+def get_organization_repository(
+    db: Session = Depends(get_db),
+) -> OrganizationRepository:
+    return OrganizationRepository(db)
+
+
+def get_organization_service(
+    repository: OrganizationRepository = Depends(
+        get_organization_repository,
+    ),
+) -> OrganizationService:
+    return OrganizationService(repository)

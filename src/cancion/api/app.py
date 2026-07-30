@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from cancion.api.routes.contracts import router as contracts_router
 from cancion.api.routes.decisions import router as decisions_router
 from cancion.api.routes.governance import router as governance_router
+from cancion.api.routes.organizations import router as organization_router
 
 app = FastAPI(
     title="Cancion",
@@ -26,6 +27,12 @@ app.include_router(
     governance_router,
     prefix="/governance",
     tags=["Governance"],
+)
+
+app.include_router(
+    organization_router,
+    prefix="/organizations",
+    tags=["Organizations"],
 )
 
 
