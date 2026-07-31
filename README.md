@@ -152,3 +152,62 @@ Cross-cutting concerns tracked throughout: optimistic concurrency (via `Contract
 ## License
 
 TBD.
+
+## KYA audit demo (example)
+
+Step 1. An AI agent issues a $50 refund.
+
+```python
+import json
+from kya import (
+       default_session, record_invocation, record_evidence, verify_chain,
+)
+from sqlalchemy import text
+
+with default_session() as db:
+       inv = record_invocation(
+              db,
+              tenant_id="acme",
+              agent_key="support_bot",
+              principal_kind="agent",
+              principal_id="support_bot",
+       )
+
+       record_evidence(
+              db,
+              tenant_id="acme",
+              invocation_id=inv,
+              evidence_kind="tool_call",
+              payload={"tool": "refund", "customer": "alice", "amount_usd": 50},
+       )
+
+       db.commit()
+```
+
+Step 2. Verify the audit chain — clean.
+
+```python
+print(verify_chain(db, tenant_id="acme", invocation_id=inv))
+# -> {'valid': True, 'broken_at': None, 'checked': 1, 'reason': None}
+```
+
+Step 3. Someone tampers — changes the refund from $50 to $5000 directly in the database.
+
+```python
+tampered = json.dumps({"tool": "refund", "customer": "alice", "amount_usd": 5000})
+db.execute(
+       text("UPDATE kya_evidence SET payload = :p WHERE invocation_id = :i"),
+       {"i": inv, "p": tampered},
+)
+db.commit()
+```
+
+Step 4. Verify again — KYA pinpoints the modified row.
+
+```python
+print(verify_chain(db, tenant_id="acme", invocation_id=inv))
+# -> {'valid': False, 'broken_at': 1, 'checked': 1, 'reason': 'payload_hash mismatch — payload was modified'}
+```
+
+All four steps run inside the same `with default_session() as db:` block (as shown above) in order to demonstrate detection of tampering within the audit store.
+
